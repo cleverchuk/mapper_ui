@@ -26,6 +26,7 @@ class DropDownListComponent extends React.Component {
      return( 
             <Select  
                     className={"select"}
+                    placeholder={this.props.placeholder}
                     value={this.state.selectedOption}
                     options={this.state.options}
                     onChange={this.handleChange}

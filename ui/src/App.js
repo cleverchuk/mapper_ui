@@ -14,7 +14,8 @@ class App extends Component {
       }
       right={
         <GraphComponent />
-      } />
+      } 
+      />
 
 
     );

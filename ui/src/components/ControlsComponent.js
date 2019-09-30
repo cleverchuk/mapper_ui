@@ -11,7 +11,8 @@ import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import ColorComponent from './ColorComponent';
 
-const defaultSubreddits =  [{
+const defaultSubreddits =  [
+    {
     value: "programming",
     label: "Programming"
 },
@@ -25,7 +26,19 @@ const defaultSubreddits =  [{
 }
 ]
 
-
+const defaultMechanism =  [{
+    value: "cc",
+    label: "Connected Components"
+},
+{
+    value: "readinglevel",
+    label: "Reading Level"
+},
+{
+    value: "sentiment",
+    label: "Sentiment"
+}
+]
 
 class ControlsComponent extends React.Component{
     constructor(props){
@@ -52,18 +65,11 @@ class ControlsComponent extends React.Component{
 
         return(
             <div className="Controls">
-                <DropDownListComponent data={defaultSubreddits}/>
+                <DropDownListComponent data={defaultSubreddits} placeholder={"Select a Subreddit"}/>
+                <div className={"separator"}/>      
+                <DropDownListComponent data={defaultMechanism} placeholder={"Select Clustering Mechanism"}/>
 
                 <div className={"separator"}/>
-                <FormControl component="fieldset" className={"form-control"}>
-                    <FormLabel component="legend">Clustering Mechanism</FormLabel>
-                    <RadioGroup value={this.state.clustering} aria-label="Mechanism" name="mechanism"  onChange={this.handleChange}>
-                        <FormControlLabel value="readinglevel" control={<Radio />} label="Reading level" />
-                        <FormControlLabel value="sentiment" control={<Radio />} label="Sentiment" />
-                        <FormControlLabel value="averagewordlength" control={<Radio />} label="Average word length" />
-                    </RadioGroup>
-                </FormControl>
-
                 <div className={"separator"}/>
                 <Typography id="discrete-slider" gutterBottom>
                     Epsilon

@@ -13,8 +13,9 @@ class App extends Component {
         <ControlsComponent/>
       }
       right={
-        <GraphComponent />
-      } />
+        <GraphComponent colorScheme layout />
+      }
+      />
 
 
     );

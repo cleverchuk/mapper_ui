@@ -1,14 +1,10 @@
 import React from 'react'
-import SubredditListComponent from './SubredditListComponent';
+import DropDownListComponent from './DropDownListComponent';
 import Slider from '@material-ui/core/Slider';
 import '../style/Controls.css'
 
 import Typography from '@material-ui/core/Typography';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
+import ColorComponent from './ColorComponent';
 
 const defaultSubreddits =  [{
     value: "programming",
@@ -24,7 +20,29 @@ const defaultSubreddits =  [{
 }
 ]
 
+const defaultMechanism =  [{
+    value: "cc",
+    label: "Connected Components"
+},
+{
+    value: "readinglevel",
+    label: "Reading Level"
+},
+{
+    value: "sentiment",
+    label: "Sentiment"
+}
+]
 
+const defaultLayout =  [{
+    value: "tree",
+    label: "Hierarchy"
+},
+{
+    value: "forcedirected",
+    label: "Force Directed"
+},
+]
 
 class ControlsComponent extends React.Component{
     constructor(props){
@@ -34,6 +52,7 @@ class ControlsComponent extends React.Component{
         };
 
         this.handleChange = this.handleChange.bind(this);
+        this.handleColorChange = this.handleColorChange.bind(this);
     }
 
     
@@ -42,21 +61,17 @@ class ControlsComponent extends React.Component{
       //TODO: make request to backend to serve up data with the specified clustering
     }
 
+    handleColorChange(color){
+        //TODO
+    }
+
     render(){
 
         return(
             <div className="Controls">
-                <SubredditListComponent data={defaultSubreddits}/>
-
+                <DropDownListComponent data={defaultSubreddits} placeholder={"Select a Subreddit"}/>
                 <div className={"separator"}/>
-                <FormControl component="fieldset" className={"form-control"}>
-                    <FormLabel component="legend">Clustering Mechanism</FormLabel>
-                    <RadioGroup aria-label="Mechanism" name="mechanism"  onChange={this.handleChange}>
-                        <FormControlLabel value="readinglevel" control={<Radio />} label="Reading level" />
-                        <FormControlLabel value="sentiment" control={<Radio />} label="Sentiment" />
-                        <FormControlLabel value="averagewordlength" control={<Radio />} label="Average word length" />
-                    </RadioGroup>
-                </FormControl>
+                <DropDownListComponent data={defaultMechanism} placeholder={"Select Clustering Mechanism"}/>
 
                 <div className={"separator"}/>
                 <Typography id="discrete-slider" gutterBottom>
@@ -79,6 +94,10 @@ class ControlsComponent extends React.Component{
                     valueLabelDisplay={'auto'}
                     min={1}
                     />
+
+                <div className={"separator"}/>
+                <ColorComponent/>
+                <DropDownListComponent data={defaultLayout} placeholder={"Select Layout"}/>
             </div>
         );
     }

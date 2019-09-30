@@ -1,7 +1,7 @@
 import  React from 'react';
 import  Select from 'react-select'
 
-class SubredditListComponent extends React.Component {
+class DropDownListComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -34,4 +34,4 @@ class SubredditListComponent extends React.Component {
     }
 }
 
-export default SubredditListComponent;
+export default DropDownListComponent;

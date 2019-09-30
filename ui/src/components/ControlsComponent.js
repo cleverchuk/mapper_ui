@@ -1,5 +1,5 @@
 import React from 'react'
-import SubredditListComponent from './SubredditListComponent';
+import DropDownListComponent from './DropDownListComponent';
 import Slider from '@material-ui/core/Slider';
 import '../style/Controls.css'
 
@@ -9,6 +9,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
+import ColorComponent from './ColorComponent';
 
 const defaultSubreddits =  [{
     value: "programming",
@@ -34,6 +35,7 @@ class ControlsComponent extends React.Component{
         };
 
         this.handleChange = this.handleChange.bind(this);
+        this.handleColorChange = this.handleColorChange.bind(this);
     }
 
     
@@ -42,16 +44,20 @@ class ControlsComponent extends React.Component{
       //TODO: make request to backend to serve up data with the specified clustering
     }
 
+    handleColorChange(color){
+        //TODO
+    }
+
     render(){
 
         return(
             <div className="Controls">
-                <SubredditListComponent data={defaultSubreddits}/>
+                <DropDownListComponent data={defaultSubreddits}/>
 
                 <div className={"separator"}/>
                 <FormControl component="fieldset" className={"form-control"}>
                     <FormLabel component="legend">Clustering Mechanism</FormLabel>
-                    <RadioGroup aria-label="Mechanism" name="mechanism"  onChange={this.handleChange}>
+                    <RadioGroup value={this.state.clustering} aria-label="Mechanism" name="mechanism"  onChange={this.handleChange}>
                         <FormControlLabel value="readinglevel" control={<Radio />} label="Reading level" />
                         <FormControlLabel value="sentiment" control={<Radio />} label="Sentiment" />
                         <FormControlLabel value="averagewordlength" control={<Radio />} label="Average word length" />
@@ -79,6 +85,9 @@ class ControlsComponent extends React.Component{
                     valueLabelDisplay={'auto'}
                     min={1}
                     />
+
+                <div className={"separator"}/>
+                <ColorComponent/>
             </div>
         );
     }

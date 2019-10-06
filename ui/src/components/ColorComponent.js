@@ -41,6 +41,7 @@ class ColorAtom extends React.Component{
         console.log(this.props.clazz);
         return(
             <div className={this.props.clazz} style={style} onClick={this.handleClick}/>
+
         );
     }
 }

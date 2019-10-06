@@ -72,7 +72,8 @@ class ControlsComponent extends React.Component{
                 <DropDownListComponent data={defaultSubreddits} placeholder={"Select a Subreddit"}/>
                 <div className={"separator"}/>
                 <DropDownListComponent data={defaultMechanism} placeholder={"Select Clustering Mechanism"}/>
-
+                <div className={"separator"}/>
+                <DropDownListComponent data={defaultLayout} placeholder={"Select Layout"}/>
                 <div className={"separator"}/>
                 <Typography id="discrete-slider" gutterBottom>
                     Epsilon
@@ -97,7 +98,6 @@ class ControlsComponent extends React.Component{
 
                 <div className={"separator"}/>
                 <ColorComponent/>
-                <DropDownListComponent data={defaultLayout} placeholder={"Select Layout"}/>
             </div>
         );
     }

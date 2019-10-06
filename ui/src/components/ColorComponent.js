@@ -41,6 +41,7 @@ class ColorAtom extends React.Component{
         console.log(this.props.clazz);
         return(
             <div className={this.props.clazz} style={style} onClick={this.handleClick}/>
+
         );
     }
 }
@@ -171,7 +172,8 @@ class ColorComponent extends React.Component {
       };
 
     return (
-        <div style={style}>
+        <div style={style}>            
+            <ColorCompound format={this.state.format} />
             <FormControl component="fieldset">
                 <FormLabel component="legend">Color Scheme</FormLabel>                
                 <RadioGroup aria-label="position" name="position" value={this.state.format}  onChange={this.handleChange} row>
@@ -180,7 +182,6 @@ class ColorComponent extends React.Component {
                     <FormControlLabel value={types.sequential} control={<Radio />} label="Sequential" />
                 </RadioGroup>
             </FormControl>
-            <ColorCompound format={this.state.format} />
         </div>
     );
   }

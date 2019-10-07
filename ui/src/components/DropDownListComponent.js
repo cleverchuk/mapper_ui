@@ -1,38 +1,33 @@
-import  React from 'react';
+import  React, { useState, useEffect } from 'react';
 import  Select from 'react-select'
 
-class DropDownListComponent extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isLoading: true
-        };
+export default function DropDownListComponent(props) {
 
-        this.handleChange = this.handleChange.bind(this);
-    }
+    const [isLoading, setLoading] = useState(false);
+    const [selectedOption, setSelectedOption] = useState("None");
+    const [options, setOptions] = useState({});
 
-    handleChange(selectedOption){
-        this.setState({selectedOption:selectedOption});
+    const handleChange = (selectedOption) => {
+        setSelectedOption(selectedOption);
         // Call handler to load the data for the selected subreddit
-        this.props.onChange(selectedOption.label);
+        props.handleChange(selectedOption.value);
     }
 
-    componentDidMount() {
-        this.setState({options: this.props.data})
-    }
-
-    render() {
+    // Lifecycle events in this one function
+    useEffect(()=>{
+        setOptions(props.data)
+    });
 
      return( 
             <Select  
-                    className={"select"}
-                    placeholder={this.props.placeholder}
-                    value={this.state.selectedOption}
-                    options={this.state.options}
-                    onChange={this.handleChange}
+                    defaultValue={props.defaultValue}
+                    className={props.className}
+                    placeholder={props.placeholder}
+                    value={selectedOption}
+                    options={options}
+                    onChange={handleChange}
                 />
         );
-    }
+    
 }
 
-export default DropDownListComponent;

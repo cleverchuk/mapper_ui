@@ -4,6 +4,9 @@ import Slider from '@material-ui/core/Slider';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import ColorComponent from './ColorComponent';
+import Fab from '@material-ui/core/Fab';
+import NavigationIcon from '@material-ui/icons/Navigation';
+
 
 const defaultSubreddits =  [{
     value: "programming",
@@ -36,11 +39,11 @@ const defaultFilters =  [{
 ]
 
 const defaultLayout =  [{
-    value: "tree",
+    value: "hierarchy",
     label: "Hierarchy"
 },
 {
-    value: "forcedirected",
+    value: "force_directed",
     label: "Force Directed"
 },
 ]
@@ -64,26 +67,46 @@ const useStyles = makeStyles(theme => ({
         marginRight: theme.spacing(2),   
     },
 
+    fab: {
+        margin: theme.spacing(1),
+        marginLeft:theme.spacing(30),
+      },
+      extendedIcon: {
+        marginRight: theme.spacing(1),
+      },
 }));
 
 export default function ControlsComponent(props) {
     const classNames = useStyles();
-
     return(
         <div >
-            <DropDownListComponent handleChange={props.handleSubredditSelect} className={classNames.select} data={defaultSubreddits} placeholder={"Select a Subreddit"}/>
+            <DropDownListComponent 
+                handleChange={props.handleSubredditSelect} 
+                className={classNames.select} 
+                options={defaultSubreddits} 
+                placeholder={"Select a Subreddit"}/>
             <div className={classNames.separator}/>
             
-            <DropDownListComponent handleChange={props.handleFilterSelect} 
+            <DropDownListComponent 
+                url={"http://127.0.0.1:8000/api/lenses"}
+                handleChange={props.handleFilterSelect} 
                 className={classNames.select} 
-                data={defaultFilters} 
-                placeholder={"Select filter"}/>
+                options={props.lenses} 
+                placeholder={"Select topological lens"}/>
             <div className={classNames.separator}/>
 
-            <DropDownListComponent handleChange={props.handleClusteringMechanismSelect} className={classNames.select} data={defaultMechanism} placeholder={"Select Clustering Algorithm"}/>
+            <DropDownListComponent 
+                handleChange={props.handleClusteringAlgorithmSelect}
+                className={classNames.select} 
+                options={defaultMechanism} 
+                placeholder={"Select Clustering Algorithm"}/>
             <div className={classNames.separator}/>
 
-            <DropDownListComponent handleChange={props.handleLayoutSelect} className={classNames.select} data={defaultLayout} placeholder={"Select Layout"}/>
+            <DropDownListComponent 
+                handleChange={props.handleLayoutSelect} 
+                className={classNames.select} 
+                options={defaultLayout} 
+                placeholder={"Select Layout"}/>
             <div className={classNames.separator}/>
 
             <Typography className={classNames.sliders} id="discrete-slider" gutterBottom>
@@ -108,7 +131,16 @@ export default function ControlsComponent(props) {
                 min={1}
                 onChange={props.handleIntervalChange}
                 />
-
+                
+            <div className={classNames.separator}/>
+            <Fab 
+                variant="extended" 
+                aria-label="delete" 
+                onClick={props.handleloadGraphClick}
+                className={classNames.fab}>
+                <NavigationIcon className={classNames.extendedIcon} />
+                Load Graph
+            </Fab>
             <div className={classNames.separator}/>
             <ColorComponent 
                     className={classNames.colors} 

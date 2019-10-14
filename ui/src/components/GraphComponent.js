@@ -12,8 +12,8 @@ let width = 960 - margin.left - margin.right;
 let height = 550 - margin.top - margin.bottom;
 
 let layout ={
-    forcelyaout:"forcedirected",
-    hierarchy:"tree"
+    forcelyaout:"force_directed",
+    hierarchy:"hierarchy"
 }
 
 
@@ -22,11 +22,11 @@ export default function GraphComponent(props){
               
         // find maximum property value
         let max = d3.max(nodes.filter(d => d.type === "comment"), n => {
-            return +n[props.filter]
+            return +n[props.lens]
           });
           // find minimum property value
           let min = d3.min(nodes.filter(d => d.type === "comment"), n => {
-            return +n[props.filter]
+            return +n[props.lens]
           });
         
           // Create a color scale with minimum and maximum values
@@ -141,7 +141,7 @@ export default function GraphComponent(props){
                 if(props.isColor) return props.color;
 
                 let scheme = props.colorScheme.scheme;
-                return scheme(getColorScale(nodes)(d[props.filter]));
+                return scheme(getColorScale(nodes)(d[props.lens]));
 
               }else if(d.type === "sentiment"){
                   return sentiment_color[d.name];
@@ -171,6 +171,7 @@ export default function GraphComponent(props){
             .attr("text-anchor", "middle")
             .attr("pointer-events", "none")
             .text(d => get_node_text(d))
+
         return circles
     }
     
@@ -190,7 +191,7 @@ export default function GraphComponent(props){
       
         // // Create Y scale
         // var yscale = d3.scaleLinear()
-        //   .domain([d3.min(nodes, node => node[filter]), d3.max(nodes, node => node[filter])])
+        //   .domain([d3.min(nodes, node => node[lens]), d3.max(nodes, node => node[lens])])
         //   .range([1000, 0]);
       
         //set up the simulation and add forces  
@@ -243,17 +244,17 @@ export default function GraphComponent(props){
         }
     }
       
-    const renderScatterPlot = (nodes, canvas, filter) =>{
+    const renderScatterPlot = (nodes, canvas, lens) =>{
         canvas.select('.y-axis').remove()
         canvas.select('.x-axis').remove()
         nodes = nodes.filter(n => n.type === "comment")
         // find maximum property value
         let max = d3.max(nodes.filter(d => d.type === "comment"), n => {
-          return +n[filter]
+          return +n[lens]
         })
         // find minimum property value
         let min = d3.min(nodes.filter(d => d.type === "comment"), n => {
-          return +n[filter]
+          return +n[lens]
         })
       
         // Convert timestamp to date objects
@@ -313,20 +314,20 @@ export default function GraphComponent(props){
           .attr("dx", "-10em")
           .attr("dy", "-18em")
           .style("text-anchor", "end")
-          .text(filter);
+          .text(lens);
       
         // Update selection
         const update = canvas.selectAll("rect")
           .data(nodes)
         update
           .attr("x", d => xscale(+d.timestamp))
-          .attr("y", d => yscale(+d[filter]))
+          .attr("y", d => yscale(+d[lens]))
       
         // Enter selection
         const enter = update.enter()
         enter.append("rect")
           .attr("x", d => xscale(+d.timestamp))
-          .attr("y", d => yscale(+d[filter]))
+          .attr("y", d => yscale(+d[lens]))
           .attr("height", 20)
           .attr("width", d => d.radius)
           .attr("fill", d => "orange")
@@ -339,7 +340,7 @@ export default function GraphComponent(props){
       
     }
       
-    const renderTree = (root, canvas, filter) =>{
+    const renderTree = (root, canvas, lens) =>{
         let get_tree = function (data) {
           const root = d3.hierarchy(data)
             .sort((a, b) => (a.height - b.height) || a.data.type.localeCompare(b.data.type));
@@ -371,8 +372,8 @@ export default function GraphComponent(props){
             if (maximum < d.data.value) maximum = d.data.value
             if (minimum > d.data.value) minimum = d.data.value
           } else {
-            if (maximum < d.data[filter]) maximum = d.data[filter]
-            if (minimum > d.data[filter]) minimum = d.data[filter]
+            if (maximum < d.data[lens]) maximum = d.data[lens]
+            if (minimum > d.data[lens]) minimum = d.data[lens]
           }
         });
         // Create a color scale with minimum and maximum values
@@ -398,7 +399,7 @@ export default function GraphComponent(props){
             if (typeof (d.data.value) === "string")
               return colors[d.data.value]
       
-            let t = color_scale(d.data[filter])
+            let t = color_scale(d.data[lens])
             // return d3.interpolateBlues(t)
             return colors[d.data.sentiment]
           })
@@ -469,13 +470,14 @@ export default function GraphComponent(props){
     }
 
     useEffect(()=>{
-        let grapharea = d3.select(".graph-area")
+        let grapharea = d3.select(`.${props.name}`)
                 .classed("svg-content-responsive", true)
                 .attr("preserveAspectRatio", "xMinYMin meet")
                 .attr("viewBox", "0 0 " + (height + margin.top + margin.bottom) + " " + (width + margin.left + margin.right))
 
 
 
+        console.log("Begin rendering graph")
         let main_canvas = grapharea.select('.canvas')
         // Zoom functions 
         const zoomed =() =>{
@@ -493,20 +495,18 @@ export default function GraphComponent(props){
         //     .attr("orient", "auto")
         //     .append("path")
         //     .attr("d", "M0,-5L10,0L0,5");
-
-        console.log("ColorScheme",props.colorScheme);
+        console.log("Graph Component",props.name, "Data:",props.data)
         if(props.layout === layout.forcelyaout){
             let nodes  = props.data.nodes, links = props.data.links;
-            if(nodes && links)
-            {
-                
+            if(nodes && links){                
                 console.log("Calling renderMapper")
                 renderMapper(nodes, links, main_canvas)
             }
         }else if(props.layout === layout.hierarchy){
             let root = props.data;
-            if(root){
-                renderTree(root, main_canvas, props.filter);
+            if(root){              
+                console.log("Calling renderTree")
+                renderTree(root, main_canvas, props.lens);
             }
         }
 
@@ -515,10 +515,9 @@ export default function GraphComponent(props){
     const style = {
         width:"100%",
         height:"100%",
-        fill:"blue",
     }
     return(
-        <svg style={style} className={"graph-area"} >
+        <svg style={style} className={props.name} >
             <g className={"canvas"}>
                 <g className={'edge-layer'}></g>
                 <g className={'node-layer'}></g>

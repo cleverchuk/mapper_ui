@@ -15,9 +15,10 @@ import ControlsComponent from './ControlsComponent';
 import GraphComponent from './GraphComponent';
 import {interpolateBrBG} from 'd3'
 import Grid from '@material-ui/core/Grid';
+import {API, apiRequest} from './GlobalVars'
+
 const uuidv1 = require('uuid/v1');
 
-const API = "http://127.0.0.1:8000/api/";
 const axios = require('axios').default;
 const drawerWidth = 450;
 const useStyles = makeStyles(theme => ({
@@ -95,26 +96,13 @@ export default function VisualiztionComponent(props) {
   const [isColor, setIsColor] = useState(false);
   const [color, setColor] = useState("#b4ccef");
   const [lenses, setLenses]=useState([]);
+  const [articles, setArticles] = useState(Array.from(props.articles))
 
 
-  const handleSubredditSelect = (subreddit) =>{
-    // Fetch subreddit data and update state
-    axios.get(`${API}subreddit?subreddit=${subreddit}&layout=${layout}`)
-    .then((response)=>{
-      // console.log("Main response:",response.data);
-      setData(response.data);
-    }).catch((error)=>{
-      console.log(error);
-    })
-
-    setSubreddit(subreddit);
-    handleloadGraphClick();// Avoiding multiple calls to fetchLens in useEffect
-  }
 
   const handleClusteringAlgorithmSelect = (mechanism) =>{
     // set mechanism and update state
     setClusteringAlgorithm(mechanism);
-    handleloadGraphClick();// Avoiding multiple calls to fetchLens in useEffect
     // console.log(mechanism);
   }
 
@@ -122,14 +110,12 @@ export default function VisualiztionComponent(props) {
   const handleFilterSelect = (lens) =>{
     // set lens and update state
     setLens(lens);
-    handleloadGraphClick(); // Avoiding multiple calls to fetchLens in useEffect
     console.log(lens);
   }
 
   const handleLayoutSelect = (layout) =>{
     // set layout method and update state
     setLayout(layout);
-    handleloadGraphClick(); // Avoiding multiple calls to fetchLens in useEffect
     // console.log(layout);
   }
 
@@ -173,28 +159,47 @@ export default function VisualiztionComponent(props) {
     return API+queryParams.substr(0,queryParams.length-1);
   }
 
-  const handleloadGraphClick = ()=>{
-    let params = {
-      subreddit:subreddit,
-      lens:lens,
-      clustering_algorithm:clusterinAlgorithm,
-      graph_layout:layout,
-      interval:interval,
-      epsilon:epsilon,
+  const handleloadGraph = ()=>{
+    const endpoint = API+"article/nodes";
+    let body = {
+      "ids":articles,
+      "layout":layout,
+      "mapper":false,
+      "m_params":{}
     }
 
-    const endpoint = API+"mapper";
-    // console.log("Making api call to:", endpoint);
-    // console.log("With params:", params);
-    console.log("endpoint: ", generateEndpointWithParams(endpoint, params))
-    axios.get(generateEndpointWithParams(endpoint, params))
-    .then((response)=>{
-      // console.log("Mapper",response);
-      setMapper(response.data);
-      // setData(response.data);
+    apiRequest(endpoint,"POST",body)
+    .then((data)=>{
+      console.log("Graph",data);
+      setData(data);
     }).catch((error)=>{
       console.log(error);
     })
+  }
+
+
+
+  const handleloadMapper = ()=>{
+    let body = {
+      "ids":articles,
+      "layout":layout,
+      "mapper":true,
+      "m_params":{
+        "lens":lens,
+        "clustering_algorithm":clusterinAlgorithm,
+        "interval":interval,
+        "epsilon":epsilon,
+      }
+    }
+
+    const endpoint = API+"articles/nodes";    
+    apiRequest(endpoint,"POST",body)
+    .then((data)=>{
+      console.log("Mapper", data);
+      setMapper(data);
+    }).catch((error)=>{
+      console.log(error);
+    });
   }
 
   useEffect(()=>{
@@ -203,13 +208,13 @@ export default function VisualiztionComponent(props) {
       setLenses(response.data.data);
     };
     fetchLens();
-    // handleloadGraphClick();
+    handleloadGraph();
 
   },["layout"])
 
   console.log("Main:", data)
   console.log("Mapper:", mapper)
-  console.log("Visiualization article id:", props.aId) 
+  console.log("Visiualization article set:", props.articles) 
 
   return (
     <div className={classes.root}>
@@ -253,8 +258,7 @@ export default function VisualiztionComponent(props) {
         <Divider />
         <ControlsComponent 
             lenses={lenses}
-            handleloadGraphClick={handleloadGraphClick}
-            handleSubredditSelect={handleSubredditSelect} 
+            handleloadGraphClick={handleloadMapper}
             handleClusteringAlgorithmSelect={handleClusteringAlgorithmSelect}
             handleFilterSelect={handleFilterSelect}
             handleLayoutSelect={handleLayoutSelect}

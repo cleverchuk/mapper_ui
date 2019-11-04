@@ -11,11 +11,11 @@ import VisualiztionComponent from './components/VisualizationComponent';
 
 
 export default function App(props) {
-  const [articleId, setArticleId] = useState("")
-  const handleArticleSelect = (id)=>{
-    setArticleId(id);
+  const [articles, setArticles] = useState(new Set())
+  const handleProceed = (currentSelected)=>{
+    setArticles(currentSelected);
     console.log("From App");
-    console.log(id);
+    console.log(currentSelected);
   }
 
   return (
@@ -24,10 +24,10 @@ export default function App(props) {
                 renders the first one that matches the current URL. */}
             <Switch>
               <Route path="/visualization">
-                <VisualiztionComponent aId={articleId}/>
+                <VisualiztionComponent articles={articles}/>
               </Route>
               <Route path="/">
-                    <EntryComponent handleArticleSelect={handleArticleSelect}/>
+                    <EntryComponent handleProceed={handleProceed}/>
               </Route>
             </Switch>
       </Router>

@@ -7,21 +7,6 @@ import ColorComponent from './ColorComponent';
 import Fab from '@material-ui/core/Fab';
 import NavigationIcon from '@material-ui/icons/Navigation';
 
-
-const defaultSubreddits =  [{
-    value: "programming",
-    label: "Programming"
-},
-{
-    value: "legaladvice",
-    label: "Legal Advice"
-},
-{
-    value: "politics",
-    label: "Politics"
-}
-]
-
 const defaultMechanism =  [{
     value: "cc",
     label: "Connected Components"
@@ -79,14 +64,7 @@ const useStyles = makeStyles(theme => ({
 export default function ControlsComponent(props) {
     const classNames = useStyles();
     return(
-        <div >
-            <DropDownListComponent 
-                handleChange={props.handleSubredditSelect} 
-                className={classNames.select} 
-                options={defaultSubreddits} 
-                placeholder={"Select a Subreddit"}/>
-            <div className={classNames.separator}/>
-            
+        <div >            
             <DropDownListComponent 
                 url={"http://127.0.0.1:8000/api/lenses"}
                 handleChange={props.handleFilterSelect} 

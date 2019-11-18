@@ -1,0 +1,33 @@
+.App {
+  text-align: center;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+}
+
+.SplitPane {
+  width: 100%;
+  height: 100%;
+}
+
+.SplitPane-left {
+  position: absolute;
+  left: 0.5%;
+
+  float: left;
+  width: 20%;
+  height: 100%;
+}
+
+.SplitPane-right {
+  position: absolute; 
+  left:21%;
+
+  float: left;
+  width: 80%;
+  height: 100%;
+}
+
+

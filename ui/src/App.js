@@ -14,8 +14,6 @@ export default function App(props) {
   const [articles, setArticles] = useState(new Set())
   const handleProceed = (currentSelected)=>{
     setArticles(currentSelected);
-    console.log("From App");
-    console.log(currentSelected);
   }
 
   return (

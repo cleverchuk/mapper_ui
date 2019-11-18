@@ -14,12 +14,8 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ControlsComponent from './ControlsComponent';
 import GraphComponent from './GraphComponent';
 import {interpolateBrBG} from 'd3'
-import Grid from '@material-ui/core/Grid';
 import {API, apiRequest} from './GlobalVars'
 
-const uuidv1 = require('uuid/v1');
-
-const axios = require('axios').default;
 const drawerWidth = 450;
 const useStyles = makeStyles(theme => ({
   root: {
@@ -87,7 +83,7 @@ export default function VisualiztionComponent(props) {
   const [subreddit, setSubreddit] = useState("legaladvice");
   const [lens, setLens] = useState("reading_level");
   const [clusterinAlgorithm, setClusteringAlgorithm] = useState("cc");
-  const [layout, setLayout] = useState("force_directed");
+  const [layout, setLayout] = useState("hierarchy");
   const [interval, setInterval] = useState(3);
   const [epsilon, setEpsilon] = useState(0.05);
 
@@ -110,29 +106,34 @@ export default function VisualiztionComponent(props) {
   const handleFilterSelect = (lens) =>{
     // set lens and update state
     setLens(lens);
-    console.log(lens);
   }
 
-  const handleLayoutSelect = (layout) =>{
+  const handleLayoutSelect = (_layout) =>{
     // set layout method and update state
-    setLayout(layout);
-    // console.log(layout);
+    if(layout !== _layout){
+      handleloadGraph(_layout).then((data)=>{
+        console.log("Layout change load")
+        console.log(data)
+        setLayout(_layout);
+        setData(data);
+      }).catch((error)=>{
+        console.log(error);
+      });
+    }
   }
 
   const handleEpsilonValueChange = (event, value) =>{
     // set epsilon and update state
-    
-    console.log(value);
+    setEpsilon(value);
   }
 
   const handleIntervalChange = (event, value) =>{
     // set interval and update state
-    console.log(value);
+    setInterval(value)
   }
 
   const handleColorSchemeSelect = (scheme) =>{
     // set color and update state
-    console.log("APP.JS scheme",scheme);
     setColorScheme({scheme:scheme});
     setIsColor(false);
   }
@@ -141,7 +142,6 @@ export default function VisualiztionComponent(props) {
     // set color and update state
     setColor(color);
     setIsColor(true);
-    console.log(color);
   }
 
   const handleDrawerOpen = () => {
@@ -159,7 +159,7 @@ export default function VisualiztionComponent(props) {
     return API+queryParams.substr(0,queryParams.length-1);
   }
 
-  const handleloadGraph = ()=>{
+  const handleloadGraph = (layout)=>{
     const endpoint = API+"article/nodes";
     let body = {
       "ids":articles,
@@ -168,13 +168,7 @@ export default function VisualiztionComponent(props) {
       "m_params":{}
     }
 
-    apiRequest(endpoint,"POST",body)
-    .then((data)=>{
-      console.log("Graph",data);
-      setData(data);
-    }).catch((error)=>{
-      console.log(error);
-    })
+    return apiRequest(endpoint,"POST",body);
   }
 
 
@@ -192,10 +186,9 @@ export default function VisualiztionComponent(props) {
       }
     }
 
-    const endpoint = API+"articles/nodes";    
+    const endpoint = API+"article/nodes";    
     apiRequest(endpoint,"POST",body)
     .then((data)=>{
-      console.log("Mapper", data);
       setMapper(data);
     }).catch((error)=>{
       console.log(error);
@@ -204,17 +197,22 @@ export default function VisualiztionComponent(props) {
 
   useEffect(()=>{
     const fetchLens = async ()=>{
-      const response = await axios.get("http://127.0.0.1:8000/api/lenses")      
-      setLenses(response.data.data);
+      apiRequest("http://127.0.0.1:8000/api/lenses","GET")
+      .then(response=>{
+        setLenses(response.data);
+      })
+      .catch(error=>console.log("Lens fetch failed with: ",error));
+
     };
     fetchLens();
-    handleloadGraph();
+    handleloadGraph(layout).then((data)=>{
+      setData(data);
+    }).catch((error)=>{
+      console.log(error);
+    });
 
   },["layout"])
 
-  console.log("Main:", data)
-  console.log("Mapper:", mapper)
-  console.log("Visiualization article set:", props.articles) 
 
   return (
     <div className={classes.root}>

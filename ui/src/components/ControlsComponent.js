@@ -117,7 +117,7 @@ export default function ControlsComponent(props) {
                 onClick={props.handleloadGraphClick}
                 className={classNames.fab}>
                 <NavigationIcon className={classNames.extendedIcon} />
-                Load Graph
+                Start Mapper
             </Fab>
             <div className={classNames.separator}/>
             <ColorComponent 

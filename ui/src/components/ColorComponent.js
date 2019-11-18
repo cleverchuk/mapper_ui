@@ -18,8 +18,7 @@ const colorSchemes = {
 
 
 function ColorAtom (props){
-    const handleClick = () => {
-        console.log(`Clicked ColorAtom: ${props.color}`)        
+    const handleClick = () => {      
         props.onClick(props.color)
     }
 
@@ -174,7 +173,6 @@ export default function ColorComponent(props) {
     }
 
     const handleColorSchemeSelect =(func)=>{
-        console.log("Func", func);
         props.handleColorSchemeSelect(func);
     }
 

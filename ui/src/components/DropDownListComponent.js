@@ -1,6 +1,6 @@
 import  React, { useState, useEffect } from 'react';
 import  Select from 'react-select'
-const axios = require("axios");
+import { apiRequest } from './GlobalVars';
 
 export default function DropDownListComponent(props) {
 
@@ -16,7 +16,7 @@ export default function DropDownListComponent(props) {
     
     const loadOptionsFromRemote = ()=> {
         if(props.url){
-            axios.get(props)
+            apiRequest(props.url, "GET")
             .then((response)=>{
                 setOptions(response.data)
             }).catch((error)=>{
@@ -30,8 +30,6 @@ export default function DropDownListComponent(props) {
     
     useEffect(()=>{
         setOptions(props.options);
-        // console.log("Dropdownlist UseEffect");
-        // console.log(props.options);
     });
 
      return( 

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import * as d3 from "d3";
+import {createTooltip} from './GlobalVars'
 
 let margin = {
     top: 20,
@@ -19,7 +20,6 @@ let layout ={
 
 export default function GraphComponent(props){
     const getColorScale = (nodes)=>{
-              
         // find maximum property value
         let max = d3.max(nodes.filter(d => d.type === "comment"), n => {
             return +n[props.lens]
@@ -28,11 +28,22 @@ export default function GraphComponent(props){
           let min = d3.min(nodes.filter(d => d.type === "comment"), n => {
             return +n[props.lens]
           });
-        
           // Create a color scale with minimum and maximum values
           return d3.scaleLinear().domain([min, max]);            
     }
 
+    const getColorScaleMapper = (nodes)=>{
+      // find maximum property value
+      let max = d3.max(nodes.filter(d => d.type === "mapper"), n => {
+          return +n.value
+        });
+        // find minimum property value
+        let min = d3.min(nodes.filter(d => d.type === "mapper"), n => {
+          return +n.value
+        });
+        // Create a color scale with minimum and maximum values
+        return d3.scaleLinear().domain([min, max]);            
+  }
     const update_edges = (canvas, links) =>{
         let layer = canvas.select('.edge-layer')
         let edges = layer.selectAll(".link").data(links)
@@ -155,22 +166,24 @@ export default function GraphComponent(props){
               }else{
                   return "gray";
               }
-            })
+            });
     
+
         // Set the title attribute
-        circles
-            .append("title")
-            .text(d => {
-                if (d.type === "comment") return d.body
-                else if (d.type === "article") return d.title
-                else return d.name
-            })
-        // Set the text attribute
-        circles
-            .append('text')
-            .attr("text-anchor", "middle")
-            .attr("pointer-events", "none")
-            .text(d => get_node_text(d))
+      
+        // circles
+        //     .append("title")
+        //     .text(d => {
+        //         if (d.type === "comment") return d.body
+        //         else if (d.type === "article") return d.title
+        //         else return d.name
+        //     })
+        // // Set the text attribute
+        // circles
+        //     .append('text')
+        //     .attr("text-anchor", "middle")
+        //     .attr("pointer-events", "none")
+        //     .text(d => get_node_text(d))
 
         return circles
     }
@@ -181,7 +194,16 @@ export default function GraphComponent(props){
         else return node.type
     }
     
-    const renderMapper = (nodes, links, canvas)=> {
+    const renderGraph = (nodes, links, canvas)=> {
+      var tooltip = d3.select("body")
+      .append("div")
+      .style("border-radius","5px")
+      .style("padding","5px")
+      .style("position", "absolute")
+      .style("z-index", "10")
+      .style("background","#000")
+      .style("color","#fff")
+      .style("visibility", "hidden");
         canvas.select('.y-axis').remove()
         canvas.select('.x-axis').remove()
         // // Create X scale
@@ -215,8 +237,9 @@ export default function GraphComponent(props){
         nodes = update_nodes(canvas, nodes, simulation)
       
         nodes.selectAll("circle")
-          .on("mouseover", handle_mouse_over)
-          .on("mouseout", handle_mouse_out);
+        .on("mouseover", function(d){tooltip.html(createTooltip(d)); return tooltip.style("visibility", "visible");})
+        .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+        .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
       
         function tick() {
           links.attr("d", linkArc);
@@ -342,15 +365,14 @@ export default function GraphComponent(props){
       
     const renderTree = (root, canvas, lens) =>{
         let get_tree = function (data) {
-          const root = d3.hierarchy(data)
-            .sort((a, b) => (a.height - b.height) || a.data.type.localeCompare(b.data.type));
+          const root = d3.hierarchy(data).sort((a, b) => (a.height - b.height) || a.data.type.localeCompare(b.data.type));
           root.dx = 10;
           root.dy = width / (root.height + 1);
           return d3.cluster().nodeSize([root.dx, root.dy])(root);
         }
       
         // Create hierarchy
-          root = get_tree(root)
+        root = get_tree(root)
         // find maximum property value
         let maximum = -Infinity
         // find minimum property value
@@ -358,13 +380,7 @@ export default function GraphComponent(props){
         // Calculate bounding box dimensions
         let x0 = Infinity;
         let x1 = -x0;
-      
-        let colors = {
-          "positive": "green",
-          "negative": "red",
-          "neutral": "blue"
-        }
-      
+            
         root.each(d => {
           if (d.x > x1) x1 = d.x;
           if (d.x < x0) x0 = d.x;
@@ -392,30 +408,52 @@ export default function GraphComponent(props){
           .data(root.descendants().reverse())
           .join("g")
           .attr("transform", d => `translate(${d.y},${d.x})`);
-      
+          
+        var tooltip = d3.select("body")
+          .append("div")
+          .style("border-radius","5px")
+          .style("padding","5px")
+          .style("position", "absolute")
+          .style("z-index", "10")
+          .style("background","#000")
+          .style("color","#fff")
+          .style("visibility", "hidden");
+
         node.append("circle")
           .attr("fill", d => {
-      
-            if (typeof (d.data.value) === "string")
-              return colors[d.data.value]
-      
-            let t = color_scale(d.data[lens])
-            // return d3.interpolateBlues(t)
-            return colors[d.data.sentiment]
+            let scheme = props.colorScheme.scheme;
+            const nodes = [];
+            root.each(node => nodes.push(node.data));
+
+            if(d.data.type === "comment"){
+              if(props.isColor) return props.color;
+              return scheme(getColorScale(nodes)(d.data[props.lens]));
+
+            }else if(d.data.type === "mapper"){
+              if(props.isColor) return props.color;
+              return scheme(getColorScaleMapper(nodes)(d.data.value))
+            }
+            
+            else{
+                return "gray";
+            }
           })
-          .attr("r", d => d.data.radius);
+          .attr("r", d => 1.5*d.data.radius)
+          .on("mouseover", function(d){tooltip.html(createTooltip(d.data)); return tooltip.style("visibility", "visible");})
+          .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+          .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
       
-        node.append("title")
-          .attr("dy", "0.31em")
-          .attr("x", d => d.children ? -6 : 6)
-          .text(d => {
-            if (d.data.body) return d.data.body
-            return d.data.type
-          })
-          .filter(d => d.children)
-          .attr("text-anchor", "end")
-          .clone(true).lower()
-          .attr("stroke", "white");
+        // node.append("title")
+        //   .attr("dy", "0.31em")
+        //   .attr("x", d => d.children ? -6 : 6)
+        //   .text(d => {
+        //     if (d.data.body) return d.data.body
+        //     return d.data.type
+        //   })
+        //   .filter(d => d.children)
+        //   .attr("text-anchor", "end")
+        //   .clone(true).lower()
+        //   .attr("stroke", "white");
       
         let edgeLayer = canvas.select(".edge-layer")
         edgeLayer.attr("fill", "none")
@@ -477,7 +515,6 @@ export default function GraphComponent(props){
 
 
 
-        console.log("Begin rendering graph")
         let main_canvas = grapharea.select('.canvas')
         // Zoom functions 
         const zoomed =() =>{
@@ -495,17 +532,20 @@ export default function GraphComponent(props){
         //     .attr("orient", "auto")
         //     .append("path")
         //     .attr("d", "M0,-5L10,0L0,5");
-        console.log("Graph Component",props.name, "Data:",props.data)
         if(props.layout === layout.forcelyaout){
             let nodes  = props.data.nodes, links = props.data.links;
             if(nodes && links){                
-                console.log("Calling renderMapper")
-                renderMapper(nodes, links, main_canvas)
+                console.log("Calling renderGraph")
+                main_canvas.select('.edge-layer').selectAll('path').remove();
+                main_canvas.select('.node-layer').selectAll('circle').remove();
+                renderGraph(nodes, links, main_canvas)
             }
         }else if(props.layout === layout.hierarchy){
             let root = props.data;
             if(root){              
-                console.log("Calling renderTree")
+                console.log("Calling renderTree")                
+                main_canvas.select('.edge-layer').selectAll('.link').remove();
+                main_canvas.select('.node-layer').selectAll('circle').remove();
                 renderTree(root, main_canvas, props.lens);
             }
         }

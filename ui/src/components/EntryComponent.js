@@ -5,8 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import { Button, Checkbox } from '@material-ui/core';
 import Fab from '@material-ui/core/Fab';
-import Axios from 'axios';
-import {API, dataStore} from './GlobalVars.js'
+import {API, dataStore, apiRequest} from './GlobalVars.js'
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -86,13 +85,10 @@ export default function EntryComponent(props){
     const handleSubredditSelect = (subreddit) =>{   
         setSubreddit(subreddit);
         setSubredittSelected(true);
-        console.log(`${API}articles/${subreddit}`)
-        Axios.get(`${API}articles/${subreddit}`)
+        apiRequest(`${API}articles/${subreddit}`, "GET")
         .then((response) =>{
-            console.log(`Loaded articles from ${subreddit}`);
-            console.log(response);
-            setData(response.data)
-            dataStore.data = response.data;
+            setData(response)
+            dataStore.data = response;
         })
         .catch((error)=>{
             console.log(error);
@@ -113,8 +109,6 @@ export default function EntryComponent(props){
             selectedArticles.add(articleId);
         else
             selectedArticles.delete(articleId);
-
-        console.log(selectedArticles);
     }
 
     const handleProceed = ()=>{
@@ -124,59 +118,55 @@ export default function EntryComponent(props){
 
     const handleSortOrderChange = (ordering)=>{
         //Todo ui does not update after sorting
-        console.log(data)
-        console.log(ordering);
 
         if(ordering === "time"){
             const data = dataStore.data.sort((a,b)=>{
                 return a.timestamp - b.timestamp;
-            })
+            }).slice(0)
             setData(data);
 
         }else if(ordering === "view count"){
             const data = dataStore.data.sort((a,b)=>{
                 return a.view_count - b.view_count;
-            })
+            }).reverse().slice(0)
             setData(data);
 
         }else if(ordering === "comment count"){
             const data = dataStore.data.sort((a,b)=>{
                 return a.comment_count - b.comment_count;
-            })
+            }).reverse().slice(0)
             setData(data);
 
         }else if(ordering === "upvote ratio"){
             const data = dataStore.data.sort((a,b)=>{
                 return a.upvote_ratio - b.upvote_ratio;
-            })
+            }).reverse().slice(0)
             setData(data);
 
         }else{
+            console.log("Sorting by title");
             const data = dataStore.data.sort((a,b)=>{
                 return a.title.localeCompare(b.title);
-            })
+            }).slice(0)
             setData(data);
-        }
-
-        console.log(data)
-        
+        }        
     }
 
-    const cards = data.map((aritcle)=>{
+    const cards = data.map((article)=>{
         return(
-                <Card key={aritcle.id} className={classes.card}>
+                <Card key={article.id} className={classes.card}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="h2">
-                        {aritcle.title}
+                        {article.title}
                         </Typography>
                         <Typography gutterBottom>
-                        View Count: {aritcle.view_count} <br/>
-                        Upvote ratio: {aritcle.upvote_ratio}<br/>
-                        Is video: {aritcle.isVideo.toString()}<br/>
+                        View Count: {article.view_count} <br/>
+                        Upvote ratio: {article.upvote_ratio}<br/>
+                        Is video: {article.isVideo.toString()}<br/>
                         </Typography>
                     </CardContent>
                     <CardActions>
-                        <Checkbox size="small" color="primary" onClick={(event)=>{handleArticleSelect(event.target.checked, aritcle.id)}}/>
+                        <Checkbox size="small" color="primary" onClick={(event)=>{handleArticleSelect(event.target.checked, article.id)}}/>
                     </CardActions>
                 </Card>
         );

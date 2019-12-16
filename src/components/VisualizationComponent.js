@@ -197,7 +197,7 @@ export default function VisualiztionComponent(props) {
 
   useEffect(()=>{
     const fetchLens = async ()=>{
-      apiRequest("http://127.0.0.1:8000/api/lenses","GET")
+      apiRequest(`${API}lenses`,"GET")
       .then(response=>{
         setLenses(response.data);
       })

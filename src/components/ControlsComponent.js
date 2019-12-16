@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import ColorComponent from './ColorComponent';
 import Fab from '@material-ui/core/Fab';
 import NavigationIcon from '@material-ui/icons/Navigation';
+import API from "./GlobalVars"
 
 const defaultMechanism =  [{
     value: "cc",
@@ -66,7 +67,7 @@ export default function ControlsComponent(props) {
     return(
         <div >            
             <DropDownListComponent 
-                url={"http://127.0.0.1:8000/api/lenses"}
+                url={`${API}lenses`}
                 handleChange={props.handleFilterSelect} 
                 className={classNames.select} 
                 options={props.lenses} 
@@ -95,7 +96,7 @@ export default function ControlsComponent(props) {
                 valueLabelDisplay={'auto'}                    
                 aria-labelledby="discrete-slider-small-steps"
                 min={0}
-                step={0.001}
+                step={0.1}
                 onChange={props.handleEpsilonValueChange}
                 />
             

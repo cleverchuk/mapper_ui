@@ -10,7 +10,7 @@ let margin = {
 };
 
 let width = 960 - margin.left - margin.right;
-let height = 550 - margin.top - margin.bottom;
+let height = 450 - margin.top - margin.bottom;
 
 let layout ={
     forcelyaout:"force_directed",
@@ -138,13 +138,13 @@ export default function GraphComponent(props){
             .attr('r', 0)
             .remove()
         // Enter
-        circles = circles.enter().append('g')
+        circles = circles.enter().append('circle')
             .attr('class', 'node')
             .merge(circles)
             .call(drag(simulation))
     
         // Update
-        circles.append('circle')
+        circles
             .attr("r", radiusFunc)
             .attr("id", d => d.id)
             .attr("fill", d => {
@@ -195,75 +195,66 @@ export default function GraphComponent(props){
     }
     
     const renderGraph = (nodes, links, canvas)=> {
-      var tooltip = d3.select("body")
-      .append("div")
-      .style("border-radius","5px")
-      .style("padding","5px")
-      .style("position", "absolute")
-      .style("z-index", "10")
-      .style("background","#000")
-      .style("color","#fff")
-      .style("visibility", "hidden");
+        var tooltip = d3.select("body")
+        .append("div")
+        .style("border-radius","5px")
+        .style("padding","5px")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("background","#000")
+        .style("color","#fff")
+        .style("visibility", "hidden");
         canvas.select('.y-axis').remove()
         canvas.select('.x-axis').remove()
-        // // Create X scale
-        // let xscale = d3.scaleLinear()
-        //   .domain([min, max])
-        //   .range([0, width]);
-      
-        // // Create Y scale
-        // var yscale = d3.scaleLinear()
-        //   .domain([d3.min(nodes, node => node[lens]), d3.max(nodes, node => node[lens])])
-        //   .range([1000, 0]);
-      
+        
         //set up the simulation and add forces  
         const body_force = d3.forceManyBody()
-          .strength(-500)
-      
+            .strength(-500)
+        
         const link_force = d3.forceLink(links);
         link_force.distance(250)
-      
+        
         const simulation = d3.forceSimulation(nodes)
-          .force("link", link_force)
-          .force("charge", body_force)
-          .force("center", d3.forceCenter(width / 2, height / 2));
+            .force("link", link_force)
+            .force("charge", body_force)
+            .force("center", d3.forceCenter(width / 2, height / 2));
         //add tick instructions: 
         simulation.on("tick", tick);
-      
+        
         //render edges
         links = update_edges(canvas, links)
-      
+        
         // render nodes
         nodes = update_nodes(canvas, nodes, simulation)
-      
+        
         nodes.selectAll("circle")
         .on("mouseover", function(d){tooltip.html(createTooltip(d)); return tooltip.style("visibility", "visible");})
         .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-      
+        
         function tick() {
-          links.attr("d", linkArc);
-          nodes.attr("transform", transform);
+            links.attr("d", linkArc);
+            nodes.attr("transform", transform);
         }
-      
+        
         function linkArc(d) {
-      
-          var diffX = d.target.x - d.source.x;
-          var diffY = d.target.y - d.source.y;
-      
-          // Length of path from center of source node to center of target node
-          var pathLength = Math.sqrt((diffX * diffX) + (diffY * diffY));
-      
-          // x and y distances from center to outside edge of target node
-          var offsetX = (diffX * d.target.radius) / pathLength;
-          var offsetY = (diffY * d.target.radius) / pathLength;
-      
-          return "M" + d.source.x + "," + d.source.y + "L" + (d.target.x - offsetX) + "," + (d.target.y - offsetY)
-      
+        
+            var diffX = d.target.x - d.source.x;
+            var diffY = d.target.y - d.source.y;
+        
+            // Length of path from center of source node to center of target node
+            var pathLength = Math.sqrt((diffX * diffX) + (diffY * diffY));
+        
+            // x and y distances from center to outside edge of target node
+            var offsetX = (diffX * d.target.radius) / pathLength;
+            var offsetY = (diffY * d.target.radius) / pathLength;
+        
+            return "M" + d.source.x + "," + d.source.y + "L" + (d.target.x - offsetX) + "," + (d.target.y - offsetY)
+        
         }
-      
+        
         function transform(d) { 
-          return "translate(" + d.x + "," + d.y + ")";
+            return "translate(" + d.x + "," + d.y + ")";
         }
     }
       
@@ -555,6 +546,8 @@ export default function GraphComponent(props){
     const style = {
         width:"100%",
         height:"100%",
+        border:'2px solid black',
+        marginRight:'2px',
     }
     return(
         <svg style={style} className={props.name} >

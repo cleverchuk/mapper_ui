@@ -19,7 +19,7 @@ const colorSchemes = {
 
 function ColorAtom (props){
     const handleClick = () => {      
-        props.onClick(props.color)
+        props.onClick(props.index, props.color)
     }
 
 
@@ -32,8 +32,18 @@ function ColorAtom (props){
         boxShadow:props.shadow
     }
 
+    const style2 = {
+        background: props.color,
+        width:"25px",
+        height:"25px",
+        margin:`${props.spacing} 0px 0px 0px`,
+        borderRadius:props.radius,
+        boxShadow:props.shadow,
+        border:'2px solid green'
+    }
+
     return(
-        <div style={style} onClick={handleClick}/>
+        <div style={props.selected? style2: style} onClick={handleClick}/>
     );
 
 }
@@ -48,37 +58,50 @@ function ColorMolecule(props){
         margin:'1px',
     }
 
-   const handleClick = (color) =>{
+    const style2 = {
+        float:'left',
+        margin:'1px',
+        border:'2px solid green'
+    }
+
+    const handleClick = (index, color) =>{
         //Pass the color to the parent if the colorScheme is categorical else pass down the divergent or sequentail function
         if(props.colorScheme === colorSchemes.discrete){
-            props.handleColorSelect(color);
+            props.handleColorSelect(props.index, index, color);
+
         }else{
-            props.handleColorSchemeSelect(fn)
+            props.handleColorSchemeSelect(props.index, fn)
         }
     }
 
 
-    var i = 0;
-    for(; i < colors.length; i++){
-        atoms.push(<ColorAtom key={uuidv1()} color={colors[i]} radius={props.radius} spacing={props.spacing}
+    
+    for(var i = 0; i < colors.length; i++){
+        // draw atom border only when scheme is discrete
+        atoms.push(<ColorAtom selected={props.atomWhich===i && props.selected} 
+            key={uuidv1()} 
+            index={i}
+            color={colors[i]} 
+            radius={props.radius} 
+            spacing={props.spacing}
             shadow={props.shadow}
             onClick={handleClick}
         />);
     }
-    // console.log(atoms)  
     return (
-        <div style={style}>                  
+        <div id={"color-molecule-container"} style={props.selected && props.colorScheme !== colorSchemes.discrete ? style2 : style}>                  
             {atoms}
         </div>
     );
 }
 
 function ColorCompound (props){
-
+    const [which, setWhich] = useState(0)
+    const [atomWhich, setAtomWhich] = useState(0)
         const count = 5;
         const atomCount = 10;
         const molecules = [];
-        var i = 0;
+        
 
         const style ={
             display:'flex',
@@ -90,16 +113,30 @@ function ColorCompound (props){
         const sequential = [d3.interpolateBlues, d3.interpolateReds, d3.interpolatePurples, d3.interpolateGreys, d3.interpolateGreens];
         const discrete = [d3.schemeCategory10, d3.schemePaired, d3.schemeTableau10, d3.schemeSet3, d3.schemeDark2];
 
+        const handleMoleculeSelect = (index, fn)=>{
+            props.handleColorSchemeSelect(fn);
+            setWhich(index);
+        }
+
+        const handleColorSelect = (index,aindex, fn)=>{
+            props.handleColorSelect(fn);
+            setAtomWhich(aindex)
+            setWhich(index)
+        }
+
+        var i = 0
         if(colorSchemes.sequential === props.colorScheme){ 
+
             for(; i < count; i++){
                 molecules.push(<ColorMolecule 
                     key={uuidv1()} 
                     fn={sequential[i]} 
+                    selected={which===i}
+                    index={i}
                     radius={'0px'} 
                     spacing={'0px'} 
                     atomCount={atomCount} 
-                    handleColorSchemeSelect={props.handleColorSchemeSelect}
-                    handleColorSelect={props.handleColorSelect}
+                    handleColorSchemeSelect={handleMoleculeSelect}
                     colorScheme={props.colorScheme}
                     />);
             }
@@ -116,12 +153,14 @@ function ColorCompound (props){
                 molecules.push(<ColorMolecule 
                     key={uuidv1()} 
                     fn={discrete[i]} 
+                    selected={which===i}
+                    index={i}
+                    atomWhich={atomWhich}
                     radius={'5px'} 
                     spacing={'5px'}
                     atomCount={atomCount} 
                     shadow={"0 2px 4px 0"}
-                    handleColorSchemeSelect={props.handleColorSchemeSelect}
-                    handleColorSelect={props.handleColorSelect}
+                    handleColorSelect={handleColorSelect}
                     colorScheme={props.colorScheme}
                 />);
             }
@@ -139,11 +178,12 @@ function ColorCompound (props){
                 molecules.push(<ColorMolecule 
                     key={uuidv1()} 
                     fn={divergent[i]} 
+                    selected={which===i}
+                    index={i}
                     radius={'0px'} 
                     spacing={'0px'} 
                     atomCount={atomCount}
-                    handleColorSchemeSelect={props.handleColorSchemeSelect}
-                    handleColorSelect={props.handleColorSelect}
+                    handleColorSchemeSelect={handleMoleculeSelect}
                     colorScheme={props.colorScheme}
                 />);
             }

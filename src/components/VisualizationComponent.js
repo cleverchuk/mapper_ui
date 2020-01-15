@@ -182,6 +182,7 @@ export default function VisualiztionComponent(props) {
         "lens":lens,
         "clustering_algorithm":clusterinAlgorithm,
         "interval":interval,
+        "k":interval,
         "epsilon":epsilon,
       }
     }
@@ -264,6 +265,7 @@ export default function VisualiztionComponent(props) {
             handleIntervalChange={handleIntervalChange}
             handleColorSchemeSelect={handleColorSchemeSelect}
             handleColorSelect={handleColorSelect}
+            algorithm={clusterinAlgorithm}
             />
       </Drawer>
       <main className={clsx(classes.content, {[classes.contentShift]: open, })}>

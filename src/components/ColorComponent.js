@@ -11,9 +11,9 @@ const uuidv1 = require('uuid/v1');
 //       SwatchesPicker, TwitterPicker, } from 'react-color';
 
 const colorSchemes = {
-    'divergent':'0',
-    'discrete':'1',
-    'sequential':'2'
+    'sequential':'0',
+    'divergent':'1',
+    'discrete':'2',
 }
 
 
@@ -198,7 +198,7 @@ function ColorCompound (props){
 }
 
 export default function ColorComponent(props) {
-    const [colorScheme, setColorScheme] = useState(colorSchemes.divergent);
+    const [colorScheme, setColorScheme] = useState(colorSchemes.sequential);
     useEffect(()=>{
         //TODO manage state lifecyle here
     });
@@ -231,9 +231,9 @@ export default function ColorComponent(props) {
             <FormControl component="fieldset">
                 <FormLabel component="legend">Color Scheme</FormLabel>                
                 <RadioGroup aria-label="position" name="position" value={colorScheme}  onChange={handleChange} row>
+                    <FormControlLabel value={colorSchemes.sequential} control={<Radio />} label="Sequential" />
                     <FormControlLabel value={colorSchemes.divergent} control={<Radio />} label="Diverging" />
                     <FormControlLabel value={colorSchemes.discrete} control={<Radio />} label="Discrete" />
-                    <FormControlLabel value={colorSchemes.sequential} control={<Radio />} label="Sequential" />
                 </RadioGroup>
             </FormControl>
         </div>

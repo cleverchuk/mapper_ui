@@ -12,6 +12,10 @@ const defaultMechanism =  [{
     value: "cc",
     label: "Connected Components"
 },
+{
+    value: "k-means",
+    label: "K-means"
+}
 ]
 
 const defaultFilters =  [{
@@ -102,7 +106,7 @@ export default function ControlsComponent(props) {
             
             <div className={classNames.separator}/>
             <Typography className={classNames.sliders} id="discrete-slider" gutterBottom>
-                Intervals
+                {props.algorithm=='k-means'? 'K' : 'Intervals'}
             </Typography>
             <Slider 
                 className={classNames.sliders}

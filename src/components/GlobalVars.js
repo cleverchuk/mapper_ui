@@ -2,6 +2,16 @@ import * as d3 from "d3";
 
 let API = "http://127.0.0.1:8000/api/";
 let dataStore = {};
+let tooltip = d3.select("body")
+  .append("div")
+  .style("border-radius","5px")
+  .style("padding","5px")
+  .style("position", "absolute")
+  .style("z-index", "10")
+  .style("background","#000")
+  .style("color","#fff")
+  .style("visibility", "hidden");
+  
 async function apiRequest(url = '', method, data = {}) {
   // Default options are marked with *
   if (method === "POST") {
@@ -52,5 +62,6 @@ export {
   dataStore,
   API,
   apiRequest,
-  createTooltip
+  createTooltip, 
+  tooltip
 };

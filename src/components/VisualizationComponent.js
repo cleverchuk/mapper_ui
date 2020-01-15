@@ -184,6 +184,7 @@ export default function VisualiztionComponent(props) {
         "interval":interval,
         "k":interval,
         "epsilon":epsilon,
+        "mode":"mean"
       }
     }
 

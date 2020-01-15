@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import * as d3 from "d3";
-import {createTooltip} from './GlobalVars'
+import {createTooltip, tooltip} from './GlobalVars'
 
 let margin = {
     top: 20,
@@ -98,7 +98,7 @@ export default function GraphComponent(props){
         });
     
         function radiusFunc(node) {
-            return Math.PI * Math.pow(node.radius, 2)
+          return Math.PI * Math.pow(node.radius, 2)
         }
         //Drag functions 
         var drag = simulation => {
@@ -126,7 +126,7 @@ export default function GraphComponent(props){
                 .on("end", dragended);
         }
     
-    
+
         //Add circles to each node
         let layer = canvas.select('.node-layer')
         // Add a class and a unique id for proper update
@@ -142,7 +142,7 @@ export default function GraphComponent(props){
             .attr('class', 'node')
             .merge(circles)
             .call(drag(simulation))
-    
+                    
         // Update
         circles
             .attr("r", radiusFunc)
@@ -184,7 +184,6 @@ export default function GraphComponent(props){
         //     .attr("text-anchor", "middle")
         //     .attr("pointer-events", "none")
         //     .text(d => get_node_text(d))
-
         return circles
     }
     
@@ -195,15 +194,6 @@ export default function GraphComponent(props){
     }
     
     const renderGraph = (nodes, links, canvas)=> {
-        var tooltip = d3.select("body")
-        .append("div")
-        .style("border-radius","5px")
-        .style("padding","5px")
-        .style("position", "absolute")
-        .style("z-index", "10")
-        .style("background","#000")
-        .style("color","#fff")
-        .style("visibility", "hidden");
         canvas.select('.y-axis').remove()
         canvas.select('.x-axis').remove()
         
@@ -226,12 +216,10 @@ export default function GraphComponent(props){
         
         // render nodes
         nodes = update_nodes(canvas, nodes, simulation)
-        
-        nodes.selectAll("circle")
-        .on("mouseover", function(d){tooltip.html(createTooltip(d)); return tooltip.style("visibility", "visible");})
+        nodes.on("mouseover", function(d){tooltip.html(createTooltip(d)); return tooltip.style("visibility", "visible");})
         .on("mousemove", function(){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
         .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-        
+
         function tick() {
             links.attr("d", linkArc);
             nodes.attr("transform", transform);
@@ -400,16 +388,6 @@ export default function GraphComponent(props){
           .join("g")
           .attr("transform", d => `translate(${d.y},${d.x})`);
           
-        var tooltip = d3.select("body")
-          .append("div")
-          .style("border-radius","5px")
-          .style("padding","5px")
-          .style("position", "absolute")
-          .style("z-index", "10")
-          .style("background","#000")
-          .style("color","#fff")
-          .style("visibility", "hidden");
-
         node.append("circle")
           .attr("fill", d => {
             let scheme = props.colorScheme.scheme;

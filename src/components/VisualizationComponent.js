@@ -13,7 +13,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ControlsComponent from './ControlsComponent';
 import GraphComponent from './GraphComponent';
-import {interpolateBrBG} from 'd3'
+import {interpolateBlues} from 'd3'
 import {API, apiRequest} from './GlobalVars'
 
 const drawerWidth = 450;
@@ -88,7 +88,7 @@ export default function VisualiztionComponent(props) {
   const [epsilon, setEpsilon] = useState(0.05);
 
 
-  const [colorScheme, setColorScheme] = useState({scheme:interpolateBrBG});
+  const [colorScheme, setColorScheme] = useState({scheme:interpolateBlues});
   const [isColor, setIsColor] = useState(false);
   const [color, setColor] = useState("#b4ccef");
   const [lenses, setLenses]=useState([]);
@@ -182,6 +182,7 @@ export default function VisualiztionComponent(props) {
         "lens":lens,
         "clustering_algorithm":clusterinAlgorithm,
         "interval":interval,
+        "k":interval,
         "epsilon":epsilon,
       }
     }
@@ -264,6 +265,7 @@ export default function VisualiztionComponent(props) {
             handleIntervalChange={handleIntervalChange}
             handleColorSchemeSelect={handleColorSchemeSelect}
             handleColorSelect={handleColorSelect}
+            algorithm={clusterinAlgorithm}
             />
       </Drawer>
       <main className={clsx(classes.content, {[classes.contentShift]: open, })}>

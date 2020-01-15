@@ -82,7 +82,7 @@ export default function GraphComponent(props){
         edges
             .style("stroke", "#ccc")
             .attr('marker-end', d => "url(#arrow)")
-            .style("stroke-width", 2)
+            .style("stroke-width", 5)
     
         return edges
     }

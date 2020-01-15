@@ -12,6 +12,10 @@ const defaultMechanism =  [{
     value: "cc",
     label: "Connected Components"
 },
+{
+    value: "k-means",
+    label: "K-means"
+}
 ]
 
 const defaultFilters =  [{
@@ -65,20 +69,21 @@ const useStyles = makeStyles(theme => ({
 export default function ControlsComponent(props) {
     const classNames = useStyles();
     return(
-        <div >            
+        <div >    
+            
+            <DropDownListComponent 
+                handleChange={props.handleClusteringAlgorithmSelect}
+                className={classNames.select} 
+                options={defaultMechanism} 
+                placeholder={"Select Clustering Algorithm"}/>
+            <div className={classNames.separator}/>
+
             <DropDownListComponent 
                 url={`${API}lenses`}
                 handleChange={props.handleFilterSelect} 
                 className={classNames.select} 
                 options={props.lenses} 
                 placeholder={"Select topological lens"}/>
-            <div className={classNames.separator}/>
-
-            <DropDownListComponent 
-                handleChange={props.handleClusteringAlgorithmSelect}
-                className={classNames.select} 
-                options={defaultMechanism} 
-                placeholder={"Select Clustering Algorithm"}/>
             <div className={classNames.separator}/>
 
             <DropDownListComponent 
@@ -102,7 +107,7 @@ export default function ControlsComponent(props) {
             
             <div className={classNames.separator}/>
             <Typography className={classNames.sliders} id="discrete-slider" gutterBottom>
-                Intervals
+                {props.algorithm=='k-means'? 'K' : 'Intervals'}
             </Typography>
             <Slider 
                 className={classNames.sliders}

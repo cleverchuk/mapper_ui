@@ -271,7 +271,7 @@ export default function VisualiztionComponent(props) {
       </Drawer>
       <main className={clsx(classes.content, {[classes.contentShift]: open, })}>
         <div className={classes.drawerHeader} />
-        <div style={{display:"flex", flexFlow:"row", justify:"space-around"}}>
+        <div style={{display:"flex", justify:"space-around"}}>
           <GraphComponent 
               name={"main"}
               data={data} 

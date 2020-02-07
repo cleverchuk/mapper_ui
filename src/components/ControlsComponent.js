@@ -36,6 +36,10 @@ const defaultLayout =  [{
     value: "force_directed",
     label: "Force Directed"
 },
+{
+    value: "timeline",
+    label: "Timeline"
+},
 ]
 const useStyles = makeStyles(theme => ({
     select: {
@@ -100,8 +104,8 @@ export default function ControlsComponent(props) {
                 className={classNames.sliders}
                 valueLabelDisplay={'auto'}                    
                 aria-labelledby="discrete-slider-small-steps"
-                min={0}
-                step={0.1}
+                min={0.5}
+                step={0.25}
                 onChange={props.handleEpsilonValueChange}
                 />
             

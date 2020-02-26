@@ -117,7 +117,7 @@ export default function VisualiztionComponent(props) {
         setLayout(_layout);
         setData(data);
       }).catch((error)=>{
-        console.log(error);
+        console.log("Error",error);
       });
     }
   }
@@ -184,13 +184,15 @@ export default function VisualiztionComponent(props) {
         "interval":interval,
         "k":interval,
         "epsilon":epsilon,
-        "mode":"mean"
+        "mode":"mean",
+        "layout":layout
       }
     }
 
     const endpoint = API+"article/nodes";    
     apiRequest(endpoint,"POST",body)
     .then((data)=>{
+      console.log("Mapped Graph", data)
       setMapper(data);
     }).catch((error)=>{
       console.log(error);

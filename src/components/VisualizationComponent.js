@@ -1,4 +1,4 @@
-import React,{ useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -13,8 +13,8 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ControlsComponent from './ControlsComponent';
 import GraphComponent from './GraphComponent';
-import {interpolateBlues} from 'd3'
-import {API, apiRequest} from './GlobalVars'
+import { interpolateBlues } from 'd3'
+import { API, apiRequest } from './GlobalVars'
 
 const drawerWidth = 450;
 const useStyles = makeStyles(theme => ({
@@ -88,57 +88,57 @@ export default function VisualiztionComponent(props) {
   const [epsilon, setEpsilon] = useState(0.05);
 
 
-  const [colorScheme, setColorScheme] = useState({scheme:interpolateBlues});
+  const [colorScheme, setColorScheme] = useState({ scheme: interpolateBlues });
   const [isColor, setIsColor] = useState(false);
   const [color, setColor] = useState("#b4ccef");
-  const [lenses, setLenses]=useState([]);
+  const [lenses, setLenses] = useState([]);
   const [articles, setArticles] = useState(Array.from(props.articles))
 
 
 
-  const handleClusteringAlgorithmSelect = (mechanism) =>{
+  const handleClusteringAlgorithmSelect = (mechanism) => {
     // set mechanism and update state
     setClusteringAlgorithm(mechanism);
     // console.log(mechanism);
   }
 
 
-  const handleFilterSelect = (lens) =>{
+  const handleFilterSelect = (lens) => {
     // set lens and update state
     setLens(lens);
   }
 
-  const handleLayoutSelect = (_layout) =>{
+  const handleLayoutSelect = (_layout) => {
     // set layout method and update state
-    if(layout !== _layout){
-      handleloadGraph(_layout).then((data)=>{
+    if (layout !== _layout) {
+      handleloadGraph(_layout).then((data) => {
         console.log("Layout change load")
         console.log(data)
         setLayout(_layout);
         setData(data);
-      }).catch((error)=>{
-        console.log("Error",error);
+      }).catch((error) => {
+        console.log("Error", error);
       });
     }
   }
 
-  const handleEpsilonValueChange = (event, value) =>{
+  const handleEpsilonValueChange = (event, value) => {
     // set epsilon and update state
     setEpsilon(value);
   }
 
-  const handleIntervalChange = (event, value) =>{
+  const handleIntervalChange = (event, value) => {
     // set interval and update state
     setInterval(value)
   }
 
-  const handleColorSchemeSelect = (scheme) =>{
+  const handleColorSchemeSelect = (scheme) => {
     // set color and update state
-    setColorScheme({scheme:scheme});
+    setColorScheme({ scheme: scheme });
     setIsColor(false);
   }
 
-  const handleColorSelect = (color) =>{
+  const handleColorSelect = (color) => {
     // set color and update state
     setColor(color);
     setIsColor(true);
@@ -152,70 +152,71 @@ export default function VisualiztionComponent(props) {
     setOpen(false);
   };
 
-  const generateEndpointWithParams = (API, params)=>{
-    let queryParams = Object.keys(params).reduce((out, key)=>{
-      return out + key+"="+params[key]+"&";
-    },"?")
-    return API+queryParams.substr(0,queryParams.length-1);
+  const generateEndpointWithParams = (API, params) => {
+    let queryParams = Object.keys(params).reduce((out, key) => {
+      return out + key + "=" + params[key] + "&";
+    }, "?")
+    return API + queryParams.substr(0, queryParams.length - 1);
   }
 
-  const handleloadGraph = (layout)=>{
-    const endpoint = API+"article/nodes";
+  const handleloadGraph = (layout) => {
+    const endpoint = API + "article/nodes";
     let body = {
-      "ids":articles,
-      "layout":layout,
-      "mapper":false,
-      "m_params":{}
+      "ids": articles,
+      "layout": layout,
+      "mapper": false,
+      "m_params": { "layout": layout }
     }
-
-    return apiRequest(endpoint,"POST",body);
+  
+    return apiRequest(endpoint, "POST", body);
   }
 
 
 
-  const handleloadMapper = ()=>{
+  const handleloadMapper = () => {
     let body = {
-      "ids":articles,
-      "layout":layout,
-      "mapper":true,
-      "m_params":{
-        "lens":lens,
-        "clustering_algorithm":clusterinAlgorithm,
-        "interval":interval,
-        "k":interval,
-        "epsilon":epsilon,
-        "mode":"mean",
-        "layout":layout
+      "ids": articles,
+      "layout": layout,
+      "mapper": true,
+      "m_params": {
+        "lens": lens,
+        "clustering_algorithm": clusterinAlgorithm,
+        "interval": interval,
+        "k": interval,
+        "epsilon": epsilon,
+        "mode": "mean",
+        "layout": layout
       }
     }
 
-    const endpoint = API+"article/nodes";    
-    apiRequest(endpoint,"POST",body)
-    .then((data)=>{
-      console.log("Mapped Graph", data)
-      setMapper(data);
-    }).catch((error)=>{
-      console.log(error);
-    });
+    const endpoint = API + "article/nodes";
+    apiRequest(endpoint, "POST", body)
+      .then((data) => {
+        console.log("Mapped Graph", data)
+        setMapper(data);
+      }).catch((error) => {
+        console.log(error);
+      });
   }
 
-  useEffect(()=>{
-    const fetchLens = async ()=>{
-      apiRequest(`${API}lenses`,"GET")
-      .then(response=>{
-        setLenses(response.data);
-      })
-      .catch(error=>console.log("Lens fetch failed with: ",error));
+  useEffect(() => {
+    const fetchLens = async () => {
+      apiRequest(`${API}lenses`, "GET")
+        .then(response => {
+          setLenses(response.data);
+        })
+        .catch(error => console.log("Lens fetch failed with: ", error));
 
     };
     fetchLens();
-    handleloadGraph(layout).then((data)=>{
-      setData(data);
-    }).catch((error)=>{
-      console.log(error);
-    });
+    handleloadGraph(layout)
+      .then((data) => {
+        setData(data);
+      }).catch((error) => {
+        console.log(error);
+      });
 
-  },["layout"])
+  }, ["layout"])
 
 
   return (
@@ -258,41 +259,41 @@ export default function VisualiztionComponent(props) {
           </IconButton>
         </div>
         <Divider />
-        <ControlsComponent 
-            lenses={lenses}
-            handleloadGraphClick={handleloadMapper}
-            handleClusteringAlgorithmSelect={handleClusteringAlgorithmSelect}
-            handleFilterSelect={handleFilterSelect}
-            handleLayoutSelect={handleLayoutSelect}
-            handleEpsilonValueChange={handleEpsilonValueChange}
-            handleIntervalChange={handleIntervalChange}
-            handleColorSchemeSelect={handleColorSchemeSelect}
-            handleColorSelect={handleColorSelect}
-            algorithm={clusterinAlgorithm}
-            />
+        <ControlsComponent
+          lenses={lenses}
+          handleloadGraphClick={handleloadMapper}
+          handleClusteringAlgorithmSelect={handleClusteringAlgorithmSelect}
+          handleFilterSelect={handleFilterSelect}
+          handleLayoutSelect={handleLayoutSelect}
+          handleEpsilonValueChange={handleEpsilonValueChange}
+          handleIntervalChange={handleIntervalChange}
+          handleColorSchemeSelect={handleColorSchemeSelect}
+          handleColorSelect={handleColorSelect}
+          algorithm={clusterinAlgorithm}
+        />
       </Drawer>
-      <main className={clsx(classes.content, {[classes.contentShift]: open, })}>
+      <main className={clsx(classes.content, { [classes.contentShift]: open, })}>
         <div className={classes.drawerHeader} />
-        <div style={{display:"flex", justify:"space-around"}}>
-          <GraphComponent 
-              name={"main"}
-              data={data} 
-              layout={layout} 
-              colorScheme={colorScheme} 
-              color={color} 
-              isColor={isColor}    
-              lens={lens} 
-              />
+        <div style={{ display: "flex", justify: "space-around" }}>
+          <GraphComponent
+            name={"main"}
+            data={data}
+            layout={layout}
+            colorScheme={colorScheme}
+            color={color}
+            isColor={isColor}
+            lens={lens}
+          />
 
-          <GraphComponent 
-              name={"mapper"}
-              data={mapper} 
-              layout={layout} 
-              colorScheme={colorScheme} 
-              color={color} 
-              isColor={isColor}    
-              lens={lens} 
-              />
+          <GraphComponent
+            name={"mapper"}
+            data={mapper}
+            layout={layout}
+            colorScheme={colorScheme}
+            color={color}
+            isColor={isColor}
+            lens={lens}
+          />
         </div>
       </main>
     </div>

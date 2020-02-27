@@ -30,13 +30,10 @@ const defaultFilters = [{
 
 /*
 
- "dh",
-            "grid", "graphopt",
-            "kk", "kamada_kawai",
-            "lgl", "large", "large_graph",
+
+            "lgl",
             "mds", "random", "rt", "tree"
             "rt_circular", "reingold_tilford",
-            "reingold_tilford_circular"
 
 */
 const defaultLayout = [
@@ -61,8 +58,28 @@ const defaultLayout = [
         label:"Fruchterman Reigold"
     },
     {
+        value:"graphopt",
+        label:"Graphopt"
+    },
+    {
         value: "hierarchy",
         label: "Hierarchy"
+    },
+    {
+        value: "kk",
+        label: "Kamada Kawai"
+    },
+    {
+        value: "mds",
+        label: "MDS"
+    },
+    {
+        value: "random",
+        label: "Random"
+    },
+    {
+        value: "reingold_tilford_circular",
+        label: "Reingold Tilford circular"
     },
     {
         value: "sphere",

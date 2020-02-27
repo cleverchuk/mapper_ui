@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import * as d3 from "d3";
 import { createTooltip, tooltip } from './GlobalVars'
-import { prop } from 'ramda';
 
 let margin = {
   top: 20,
@@ -40,6 +39,43 @@ function nodesToCoords(data, lens) {
 
   return points
 }
+
+function handle_mouse_over(d, i) {
+  let composition = d.composition
+  let nodes = d3.select(".graph")
+    .select("svg")
+    .select(".node-layer")
+    .selectAll(".node")
+
+  d3.select(".graph")
+    .select("svg")
+    .select(".edge-layer")
+    .attr('opacity', 0)
+
+  nodes.attr("opacity", function (data) {
+    if (typeof (composition[data.id]) === "undefined")
+      return 0
+  })
+}
+
+function handle_mouse_out(d, i) {
+  let composition = d.composition
+  let nodes = d3.select(".graph")
+    .select("svg")
+    .select(".node-layer")
+    .selectAll(".node")
+
+  d3.select(".graph")
+    .select("svg")
+    .select(".edge-layer")
+    .attr('opacity', 1)
+
+  nodes.attr("opacity", function (data) {
+    if (typeof (composition[data.id]) === "undefined")
+      return 1
+  })
+}
+
 
 export default function GraphComponent(props) {
   const getColorScale = (nodes) => {
@@ -388,7 +424,7 @@ export default function GraphComponent(props) {
     enter.append("circle")
       .attr("cx", d => xscale(+d.timestamp))
       .attr("cy", d => yscale(+d[lens]))
-      .attr("r", d => radius_scale(d.radius * d.node_count) == undefined ? 20 : radius_scale(d.radius * d.node_count))
+      .attr("r", d => radius_scale(d.radius * d.node_count) === undefined ? 20 : radius_scale(d.radius * d.node_count))
       .attr("fill", d => {
         if (d.type === "comment" || d.type === "mapper") {
           if (props.isColor) return props.color;
@@ -420,7 +456,7 @@ export default function GraphComponent(props) {
     canvas.select('.x-axis').remove()
     canvas.selectAll("circle").remove()
     canvas.selectAll("text").remove()
-    
+
     let get_tree = function (data) {
       const root = d3.hierarchy(data).sort((a, b) => (a.height - b.height) || a.data.type.localeCompare(b.data.type));
       root.dx = 10;
@@ -518,41 +554,88 @@ export default function GraphComponent(props) {
           `);
   }
 
-  const handle_mouse_over = (d, i) => {
-    let composition = d.composition
-    let nodes = d3.select(".graph")
-      .select("svg")
-      .select(".node-layer")
-      .selectAll(".node")
+  const renderLayout = (data, canvas) => {
+    canvas.select('.y-axis').remove()
+    canvas.select('.x-axis').remove()
+    canvas.selectAll("circle").remove()
+    canvas.selectAll("text").remove()
+    canvas.select(".edge-layer").selectAll("path").remove()
 
-    d3.select(".graph")
-      .select("svg")
-      .select(".edge-layer")
-      .attr('opacity', 0)
+    if (data.coords === undefined) return
+    const colorScale = getColorScale(data.nodes)
+    console.log("Data", data)
+    // Update selection
+    const nodes = canvas.select(".node-layer").selectAll("circle")
+      .data(data.nodes)
+    nodes
+      .attr("cx", (d, i) => +d.x)
+      .attr("cy", (d, i) => +d.y)
+      .attr("fill", d => {
+        if (props.isColor) return props.color;
 
-    nodes.attr("opacity", function (data) {
-      if (typeof (composition[data.id]) === "undefined")
-        return 0
+        let scheme = props.colorScheme.scheme;
+        return scheme(colorScale(d[props.lens]));
+      })
+
+    // Enter selection
+    let max = d3.max(data.nodes, n => {
+      return n.radius * n.node_count
     })
+
+    let min = d3.min(data.nodes, n => {
+      return n.radius * n.node_count
+    })
+
+    let radius_scale = d3.scaleLinear().domain([min, max]).range([20, 100])
+    const enter = nodes.enter()
+    enter
+      .append("circle")
+      .attr("cx", (d, i) => +d.x)
+      .attr("cy", (d, i) => +d.y)
+      .attr("r", d => radius_scale(d.radius * d.node_count) === undefined ? 20 : radius_scale(d.radius * d.node_count))
+      .attr("fill", d => {
+        if (props.isColor) return props.color;
+
+        let scheme = props.colorScheme.scheme;
+        return scheme(colorScale(d[props.lens]));
+      })
+      .on("mouseover", handle_mouse_over)
+      .on("mouseout", handle_mouse_out);
+
+    // Exit selection
+    nodes.exit()
+      .remove()
+
+    const links = update_edges(canvas, data.links)
+
+
+    function tick() {
+      links.attr("d", linkArc);
+      nodes.attr("transform", transform);
+    }
+
+    function linkArc(d) {
+      var diffX = d.target.x - d.source.x;
+      var diffY = d.target.y - d.source.y;
+
+      // Length of path from center of source node to center of target node
+      var pathLength = Math.sqrt((diffX * diffX) + (diffY * diffY));
+
+      // x and y distances from center to outside edge of target node
+      var offsetX = (diffX * d.target.radius) / pathLength;
+      var offsetY = (diffY * d.target.radius) / pathLength;
+
+      return "M" + d.source.x + "," + d.source.y + "L" + (d.target.x - offsetX) + "," + (d.target.y - offsetY)
+
+    }
+
+    function transform(d) {
+      return "translate(" + d.x + "," + d.y + ")";
+    }
+
+    tick()
   }
 
-  const handle_mouse_out = (d, i) => {
-    let composition = d.composition
-    let nodes = d3.select(".graph")
-      .select("svg")
-      .select(".node-layer")
-      .selectAll(".node")
-
-    d3.select(".graph")
-      .select("svg")
-      .select(".edge-layer")
-      .attr('opacity', 1)
-
-    nodes.attr("opacity", function (data) {
-      if (typeof (composition[data.id]) === "undefined")
-        return 1
-    })
-  }
 
   useEffect(() => {
     let grapharea = d3.select(`.${props.name}`)
@@ -587,21 +670,21 @@ export default function GraphComponent(props) {
       if (nodes && links) {
         main_canvas.select('.edge-layer').selectAll('path').remove();
         if (props.layout === layout.forcelyaout) {
-          console.log("Calling renderGraph")
           renderGraph(nodes, links, main_canvas)
         } else {
-          console.log("Calling renderScatterPlot")
           renderScatterPlot(props.data, main_canvas, props.lens)
         }
       }
     } else if (props.layout === layout.hierarchy) {
       let root = props.data;
       if (root) {
-        console.log("Calling renderTree")
         main_canvas.select('.edge-layer').selectAll('.link').remove();
         renderTree(root, main_canvas, props.lens);
       }
+    } else {
+      renderLayout(props.data, main_canvas)
     }
+
 
   });
 

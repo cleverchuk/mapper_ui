@@ -693,6 +693,7 @@ export default function GraphComponent(props) {
     height: "100%",
     border: '2px solid black',
     marginRight: '2px',
+    backgroundColor:'black'
   }
   return (
     <svg style={style} className={props.name} >

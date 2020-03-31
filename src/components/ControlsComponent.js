@@ -41,6 +41,10 @@ const defaultLayout = [
         value:"auto",
         label:"automatic"
     },
+    // { // require special backend handling
+    //     value:"bipartite",
+    //     label:"bipartite"
+    // },
     {
         value:"circle",
         label:"Circular"

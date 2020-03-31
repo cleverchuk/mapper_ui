@@ -577,6 +577,7 @@ export default function GraphComponent(props) {
         return scheme(colorScale(d[props.lens]));
       })
 
+
     // Enter selection
     let max = d3.max(data.nodes, n => {
       return n.radius * n.node_count
@@ -599,8 +600,9 @@ export default function GraphComponent(props) {
         let scheme = props.colorScheme.scheme;
         return scheme(colorScale(d[props.lens]));
       })
-      .on("mouseover", handle_mouse_over)
-      .on("mouseout", handle_mouse_out);
+      .on("mouseover", function (d) { tooltip.html(createTooltip({ time: new Date(d.time).toString() })); return tooltip.style("visibility", "visible"); })
+      .on("mousemove", function () { return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px"); })
+      .on("mouseout", function () { return tooltip.style("visibility", "hidden"); });
 
     // Exit selection
     nodes.exit()
@@ -693,7 +695,7 @@ export default function GraphComponent(props) {
     height: "100%",
     border: '2px solid black',
     marginRight: '2px',
-    backgroundColor:'black'
+    backgroundColor: 'black'
   }
   return (
     <svg style={style} className={props.name} >
